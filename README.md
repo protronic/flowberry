@@ -105,10 +105,9 @@ Dateien der Version 0.1 (BPMN-XML aus dem bpmn-js-Kontaktplan-Editor) werden
 erkannt, aber nicht mehr geöffnet; der Editor meldet das und startet mit einem
 leeren Plan.
 
-## Build, Tests & Deployment
+## Build & Tests
 
 ```bash
-cd web-app-submodules/flowberry
 pnpm install
 pnpm build          # -> dist/web (manifest.json + js/)
 pnpm check:types
@@ -125,19 +124,26 @@ node test/harness/run-harness.mjs
 ```
 
 Der Git-Commit wird beim Build eingesetzt (`build-info.ts`): aus
-`FLOWBERRY_GIT_COMMIT`, sonst per `git rev-parse` im Arbeitsverzeichnis, mit
-`-dirty`, wenn sich unter `flowberry/` etwas geändert hat. `build-web-extensions.sh`
-ermittelt ihn auf dem Host und reicht ihn in den Container bzw. den Runner-Build
-weiter.
+`FLOWBERRY_GIT_COMMIT`, sonst per `git rev-parse` in diesem Repository, mit
+`-dirty` bei lokalen Änderungen.
 
-Deployment über das vorhandene Build-Script:
+## Einbindung in OpenCloud
+
+flowBerry ist als Submodul `web-app-submodules/flowberry` in
+[protronic/opencloud-compose](https://github.com/protronic/opencloud-compose)
+eingebunden und wird dort gebaut und deployt (lokal oder über den
+Forgejo-Runner):
 
 ```bash
+git submodule update --init web-app-submodules/flowberry
 ./web-app-submodules/build-web-extensions.sh flowberry
 ```
 
-Ergebnis landet in `OC_APPS_DIR/flowberry/` und wird wie gewohnt in den
-OpenCloud-Container gemountet.
+`build-web-extensions.sh` ermittelt den Commit auf dem Host und reicht ihn als
+`FLOWBERRY_GIT_COMMIT` in den Container- bzw. Runner-Build weiter. Das Ergebnis
+landet in `OC_APPS_DIR/flowberry/` und wird wie gewohnt in den
+OpenCloud-Container gemountet. Neue Stände kommen in OpenCloud an, sobald der
+Submodul-Zeiger in opencloud-compose nachgezogen ist.
 
 ## Warum Vue Flow
 
